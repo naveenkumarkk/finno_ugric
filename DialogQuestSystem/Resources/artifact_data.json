@@ -1,0 +1,111 @@
+﻿{
+"artifacts": [
+{
+"id": "hip_jewelry",
+"name": "Hip jewelry, with money",
+"region": "Mari",
+"essence": "Jewelry; money",
+"dating": "1895-1905",
+"condition": "Good",
+"materials": "Glass, textile, silver",
+"legend": "Married women wore it all the time. During weddings, groom's attendants wore it on their right hip.",
+"image_path": "res://Assets/Images/jwelery.png",
+"quiz": {
+"question": "Who traditionally wore the hip jewelry with money?",
+"options": ["A. Children during festivals", "B. Married women", "C. Hunters", "D. Fishermen"],
+"correct": 1
+}
+},
+{
+"id": "bag",
+"name": "Bag",
+"region": "Mari",
+"essence": "Bag",
+"dating": "Before 1935",
+"condition": "Satisfactory",
+"materials": "Inner barkwood",
+"legend": "Lunch bag, worn on the belt when going to work.",
+"image_path": "res://Assets/Images/bag.png",
+"quiz": {
+"question": "What was the main use of the bag made from inner bark?",
+"options": ["A. Carrying tools", "B. Storing water", "C. Carrying lunch to work", "D. Holding money"],
+"correct": 2
+}
+},
+{
+"id": "beer_bucket",
+"name": "Beer bucket",
+"region": "Mari",
+"essence": "Container/vessel",
+"dating": "1982",
+"condition": "Good",
+"materials": "Wood (apple tree)",
+"legend": "For drawing beer. Used mainly in sacrifice.",
+"image_path": "res://Assets/Images/beerbucke.png",
+"quiz": {
+"question": "What was the beer bucket mainly used for?",
+"options": ["A. Drawing beer for sacrifice", "B. Storing grain", "C. Cooking food", "D. Washing clothes"],
+"correct": 0
+}
+},
+{
+"id": "hunting_kit",
+"name": "Hunting kit",
+"region": "Mari",
+"essence": "Hunting equipment",
+"dating": "1975",
+"condition": "Satisfactory",
+"materials": "Linen (cord), leather, and horn, birch (cork), and metal",
+"legend": "They belonged to the seller's grandfather.",
+"image_path": "res://Assets/Images/hunting_kit.png",
+"quiz": {
+"question": "Who originally owned the hunting kit?",
+"options": ["A. A village leader", "B. A museum collector", "C. A local hunter group", "D. The seller's grandfather"],
+"correct": 3
+}
+},
+{
+"id": "robe",
+"name": "Robe",
+"region": "Mari",
+"essence": "Robe, clothing",
+"dating": "1970",
+"condition": "Satisfactory",
+"materials": "Linen, cotton",
+"legend": "Worn over a shirt and apron, both in summer and winter (headscarves were worn - factory product).",
+"image_path": "res://Assets/Images/robe.png",
+"quiz": {
+"question": "When was the robe typically worn?",
+"options": ["A. Only in winter", "B. Only during ceremonies", "C. Only by men", "D. In both summer and winter"],
+"correct": 3
+}
+}
+],
+"final_quiz": [
+{
+"question": "What was the hunting kit made of?",
+"options": ["A. Inner barkwood", "B. Wood (apple tree)", "C. Linen (cord), leather, and horn, birch (cork), metal", "D. Linen, cotton"],
+"correct": 2
+},
+{
+"question": "What year is the robe dated from?",
+"options": ["A. 1970", "B. 1971", "C. 1977", "D. 1777"],
+"correct": 0
+},
+{
+"question": "What materials were the Beer bucket made of?",
+"options": ["A. Inner barkwood", "B. Glass, textile, silver", "C. Linen, cotton", "D. Wood (apple tree)"],
+"correct": 3
+},
+{
+"question": "What year was the bag dated from?",
+"options": ["A. Before 1938", "B. Before 1935", "C. After 1935", "D. After 1938"],
+"correct": 1
+},
+{
+"question": "What condition is the Hip jewelry, with money?",
+"options": ["A. Good", "B. Bad", "C. Brand new", "D. Satisfactory"],
+"correct": 0
+}
+]
+}

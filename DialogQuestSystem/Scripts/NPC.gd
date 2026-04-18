@@ -17,9 +17,10 @@ var current_branch_index = 0
 var quest_manager : Node = null
 
 func _ready():
-	# Init
-	quest_manager = Global.player.quest_manager
+	# Init (quest_manager no longer used — NPCs are dialog-only in current build)
 	dialog_manager.npc = self
+	if dialog_resource:
+		dialog_resource.load_from_json("res://Resources/Dialog/dialog_data.json")
 	dialog_resource.load_from_json("res://Resources/Dialog/dialog_data.json")
 	print("NPC Ready: Quests loaded", quests.size())
 
@@ -47,22 +48,10 @@ func set_dialog_branch(branch_index):
 func set_dialog_state(state):
 	current_state = state
 
-# Offer quest at required branch
-func offer_quest(quest_id: String):
-	print("Attempting to offer quest:", quest_id)
-	for quest in quests:
-		if quest.quest_id == quest_id and quest.state == "not_started":
-			quest.state = "in_progress"
-			quest_manager.add_quest(quest) 
-			return
-	print("Quest not found or already started")
+# Offer quest at required branch — kept for future use
+func offer_quest(_quest_id: String):
+	pass
 
-# Gets quest dialog
+# Gets quest dialog — kept for future use
 func get_quest_dialog() -> Dictionary:
-	var active_quests = quest_manager.get_active_quests()
-	for quest in active_quests:
-		for objective in quest.objectives:
-			if objective.target_id == npc_id and objective.target_type == "talk_to" and not objective.is_completed:
-				if current_state == "start":
-					return {"text": objective.objective_dialog, "options": {}}
 	return {"text": "", "options": {}}

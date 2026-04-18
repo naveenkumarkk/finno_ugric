@@ -22,6 +22,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Global="*res://Scripts/Global.gd"
+ArtifactManager="*res://Scripts/ArtifactManager.gd"
 
 [display]
 
