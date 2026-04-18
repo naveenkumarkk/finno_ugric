@@ -3,7 +3,7 @@ extends CharacterBody2D
 const SPEED = 200.0
 
 func _physics_process(delta):
-	var direction = Vector2.ZERO
+	var direction = Vector2.ZERO #ADDING COMMENT
 	
 	# arrow keys OR W A S D both work
 	if Input.is_action_pressed("ui_left") or Input.is_action_pressed("ui_left"):
