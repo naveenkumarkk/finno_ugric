@@ -88,25 +88,24 @@ func _spawn_artifacts():
 	# Positions within the land tile area (world x ~48-480, y ~32-320)
 	var artifact_positions = {
 		"hip_jewelry": Vector2(160, 80),
-		"bag":         Vector2(400, 100),
+		"bag":         Vector2(280, 195),
 		"beer_bucket": Vector2(460, 210),
 		"hunting_kit": Vector2(120, 270),
 		"robe":        Vector2(350, 260),
 	}
 
-	# Distinct icons per artifact (representative of artifact type)
-	var artifact_icons = {
-		"hip_jewelry": "res://Assets/Icons/icon22.png",
-		"bag":         "res://Assets/Icons/icon30.png",
-		"beer_bucket": "res://Assets/Icons/icon10.png",
-		"hunting_kit": "res://Assets/Icons/icon21.png",
-		"robe":        "res://Assets/Icons/icon24.png",
+	# Per-artifact icon scale (compensates for different source image sizes)
+	var artifact_scales = {
+		"hip_jewelry": Vector2(0.025, 0.025),
+		"bag":         Vector2(0.08, 0.08),
+		"beer_bucket": Vector2(0.08, 0.08),
+		"hunting_kit": Vector2(0.08, 0.08),
+		"robe":        Vector2(0.08, 0.08),
 	}
 
 	for artifact in all_artifact_data:
 		var art_id: String = artifact.get("id", "")
 		var art_name: String = artifact.get("name", art_id)
-		var image_path: String = artifact.get("image_path", "")
 		if art_id == "":
 			continue
 
@@ -115,12 +114,13 @@ func _spawn_artifacts():
 		item.position = artifact_positions.get(art_id, Vector2(200, 200))
 		main.add_child(item)
 
-		# Use a distinct icon per artifact for the world sprite
-		var icon_path: String = artifact_icons.get(art_id, "res://Assets/Icons/icon1.png")
+		# Use icon_path from JSON (falls back to icon1 if missing)
+		var icon_path: String = artifact.get("icon_path", "res://Assets/Icons/icon1.png")
+		if not ResourceLoader.exists(icon_path):
+			icon_path = "res://Assets/Icons/icon1.png"
 		var icon_tex = load(icon_path)
-		if icon_tex == null:
-			icon_tex = load("res://Assets/Icons/icon1.png")
-		item.setup(icon_tex, Vector2(1.0, 1.0))
+		var icon_scale: Vector2 = artifact_scales.get(art_id, Vector2(0.08, 0.08))
+		item.setup(icon_tex, icon_scale)
 
 		# Name label above the sprite — hidden until player is near
 		var name_label = Label.new()
@@ -149,9 +149,9 @@ func _spawn_artifacts():
 	# Museum entrance — far right of the land area
 	var museum = item_scene.instantiate()
 	museum.item_id = "museum"
-	museum.position = Vector2(490, 180)
+	museum.position = Vector2(450, 100)
 	main.add_child(museum)
-	museum.setup(load("res://Assets/Icons/icon20.png"), Vector2(1.0, 1.0))
+	museum.setup(load("res://Assets/Images/museum_transparent.png"), Vector2(0.08, 0.08))
 
 	var museum_label = Label.new()
 	museum_label.name = "NameLabel"
@@ -202,6 +202,7 @@ func collect_artifact(artifact_id: String):
 	if Global.player:
 		Global.player.can_move = false
 	phase = Phase.ARTIFACT_INFO
+	AudioManager.play_item_collected()
 	artifact_info_ui.show_artifact(current_artifact)
 
 # Called by Player when pressing E on the museum entrance (after all collected)
@@ -216,6 +217,7 @@ func enter_museum():
 		if Global.player:
 			Global.player.can_move = false
 		return
+	AudioManager.play_reach_museum()
 	if Global.player:
 		Global.player.can_move = false
 	phase = Phase.MUSEUM_INTRO
@@ -231,6 +233,7 @@ func _on_info_closed():
 		return
 	phase = Phase.CHECKPOINT_QUIZ
 	var quiz = current_artifact.get("quiz", {})
+	AudioManager.play_quiz_opens()
 	quiz_ui.show_quiz(quiz)
 
 func _on_quiz_completed():
@@ -252,15 +255,17 @@ func _on_quiz_completed():
 		Phase.FINAL_QUIZ:
 			final_quiz_index += 1
 			if final_quiz_index < final_quiz_data.size():
+				AudioManager.play_quiz_opens()
 				quiz_ui.show_quiz(
 					final_quiz_data[final_quiz_index],
 					"Final Quiz (%d/%d)\nAnswer the final questions correctly to complete your mission." % [final_quiz_index + 1, final_quiz_data.size()]
 				)
 			else:
 				phase = Phase.GAME_OVER
+				AudioManager.play_mission_completed()
 				popup_ui.show_popup(
 					"Congratulations!\n\nAll artifacts were collected, and the final quiz was completed.\nYou have successfully completed your ethnographic mission.",
-					"Finish"
+					"Enter Museum"
 				)
 
 func _on_popup_closed():
@@ -272,6 +277,8 @@ func _on_popup_closed():
 		Phase.MUSEUM_INTRO:
 			phase = Phase.FINAL_QUIZ
 			final_quiz_index = 0
+			AudioManager.play_final_quiz()
+			AudioManager.play_quiz_opens()
 			quiz_ui.show_quiz(
 				final_quiz_data[0],
 				"Final Quiz (1/%d)\nAnswer the final questions correctly to complete your mission." % final_quiz_data.size()

@@ -10,6 +10,7 @@
 "materials": "Glass, textile, silver",
 "legend": "Married women wore it all the time. During weddings, groom's attendants wore it on their right hip.",
 "image_path": "res://Assets/Images/jwelery.png",
+"icon_path": "res://Assets/Images/item1_transparent.png",
 "quiz": {
 "question": "Who traditionally wore the hip jewelry with money?",
 "options": ["A. Children during festivals", "B. Married women", "C. Hunters", "D. Fishermen"],
@@ -26,6 +27,7 @@
 "materials": "Inner barkwood",
 "legend": "Lunch bag, worn on the belt when going to work.",
 "image_path": "res://Assets/Images/bag.png",
+"icon_path": "res://Assets/Images/item2_transparent.png",
 "quiz": {
 "question": "What was the main use of the bag made from inner bark?",
 "options": ["A. Carrying tools", "B. Storing water", "C. Carrying lunch to work", "D. Holding money"],
@@ -42,6 +44,7 @@
 "materials": "Wood (apple tree)",
 "legend": "For drawing beer. Used mainly in sacrifice.",
 "image_path": "res://Assets/Images/beerbucke.png",
+"icon_path": "res://Assets/Images/item3_transparent.png",
 "quiz": {
 "question": "What was the beer bucket mainly used for?",
 "options": ["A. Drawing beer for sacrifice", "B. Storing grain", "C. Cooking food", "D. Washing clothes"],
@@ -58,6 +61,7 @@
 "materials": "Linen (cord), leather, and horn, birch (cork), and metal",
 "legend": "They belonged to the seller's grandfather.",
 "image_path": "res://Assets/Images/hunting_kit.png",
+"icon_path": "res://Assets/Images/item4_together_transparent.png",
 "quiz": {
 "question": "Who originally owned the hunting kit?",
 "options": ["A. A village leader", "B. A museum collector", "C. A local hunter group", "D. The seller's grandfather"],
@@ -74,6 +78,7 @@
 "materials": "Linen, cotton",
 "legend": "Worn over a shirt and apron, both in summer and winter (headscarves were worn - factory product).",
 "image_path": "res://Assets/Images/robe.png",
+"icon_path": "res://Assets/Images/item5_transparent.png",
 "quiz": {
 "question": "When was the robe typically worn?",
 "options": ["A. Only in winter", "B. Only during ceremonies", "C. Only by men", "D. In both summer and winter"],

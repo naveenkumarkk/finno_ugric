@@ -39,6 +39,7 @@ func show_quiz(quiz_data: Dictionary, header: String = "You must prove what you 
 		options_container.add_child(btn)
 
 	panel.visible = true
+	AudioManager.duck_background()
 
 func _on_option_pressed(index: int):
 	if answered_correctly:
@@ -46,12 +47,14 @@ func _on_option_pressed(index: int):
 
 	if index == correct_index:
 		answered_correctly = true
+		AudioManager.play_correct()
 		feedback_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.3))
 		feedback_label.text = "Correct!"
 		for child in options_container.get_children():
 			child.disabled = true
 		continue_button.visible = true
 	else:
+		AudioManager.play_wrong()
 		feedback_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
 		feedback_label.text = "Incorrect. Try again!"
 
@@ -74,4 +77,5 @@ func _unhandled_input(event: InputEvent):
 
 func _on_continue_button_pressed():
 	panel.visible = false
+	AudioManager.unduck_background()
 	quiz_completed.emit()

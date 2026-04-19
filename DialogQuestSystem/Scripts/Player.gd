@@ -43,7 +43,9 @@ func _physics_process(delta):
 func update_animation():
 	if velocity == Vector2.ZERO:
 		animated_sprite.play("idle")
+		AudioManager.stop_walking()
 	else:
+		AudioManager.start_walking()
 		if abs(velocity.x) > abs(velocity.y):
 			if velocity.x > 0:
 				animated_sprite.play("walk_right")

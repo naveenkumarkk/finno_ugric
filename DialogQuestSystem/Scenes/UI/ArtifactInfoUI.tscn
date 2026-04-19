@@ -78,14 +78,31 @@ size_flags_vertical = 3
 expand_mode = 1
 stretch_mode = 5
 
-[node name="InfoText" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxContainer"]
+[node name="InfoVBox" type="VBoxContainer" parent="CanvasLayer/Panel/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_font_sizes/font_size = 18
+theme_override_constants/separation = 6
+
+[node name="PropGrid" type="GridContainer" parent="CanvasLayer/Panel/VBoxContainer/HBoxContainer/InfoVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 5
+
+[node name="InfoSeparator" type="HSeparator" parent="CanvasLayer/Panel/VBoxContainer/HBoxContainer/InfoVBox"]
+layout_mode = 2
+
+[node name="LegendText" type="Label" parent="CanvasLayer/Panel/VBoxContainer/HBoxContainer/InfoVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.85, 0.85, 1.0, 1)
 text = ""
 autowrap_mode = 2
-vertical_alignment = 1
+vertical_alignment = 0
 
 [node name="ContinueButton" type="Button" parent="CanvasLayer/Panel/VBoxContainer"]
 layout_mode = 2

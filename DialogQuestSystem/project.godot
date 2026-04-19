@@ -23,6 +23,7 @@ config/icon="res://icon.svg"
 
 Global="*res://Scripts/Global.gd"
 ArtifactManager="*res://Scripts/ArtifactManager.gd"
+AudioManager="*res://Scripts/AudioManager.gd"
 
 [display]
 

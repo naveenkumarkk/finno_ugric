@@ -2,12 +2,10 @@ extends Node2D
 
 const LIB := "res://Assets/kenney_isometric-miniature-library/Isometric/"
 const PLAYER_SCENE := "res://Scenes/Player.tscn"
+const ARTIFACT_INFO_UI_SCENE := "res://Scenes/UI/ArtifactInfoUI.tscn"
 const INTERACT_DISTANCE := 80.0
 
-var _info_panel: Panel
-var _info_title: Label
-var _info_image: TextureRect
-var _info_body: Label
+var _artifact_ui: Control
 var _hint_label: Label
 var _cases: Array = []   # Array of {position: Vector2, art: Dictionary}
 var _nearby_idx: int = -1
@@ -16,9 +14,11 @@ func _ready():
 	var vp: Vector2 = get_viewport().get_visible_rect().size
 	_build_room(vp)
 	_build_artifacts(vp)
-	_build_info_popup()
+	_build_artifact_ui()
 	_build_ui(vp)
 	_spawn_player(vp)
+	# Start background music in museum
+	AudioManager.start_background()
 
 func _spawn_player(vp: Vector2):
 	var player_scene = load(PLAYER_SCENE)
@@ -59,15 +59,7 @@ func _build_room(vp: Vector2):
 		s.position = Vector2(60 + i * 130, 78)
 		s.z_index = -5
 		add_child(s)
-	# Floor carpets
-	var carpet_tex = load(LIB + "floorCarpet_E.png")
-	for i in range(4):
-		var c := Sprite2D.new()
-		c.texture = carpet_tex
-		c.scale = Vector2(0.5, 0.5)
-		c.position = Vector2(100 + i * 160, 330)
-		c.z_index = -10
-		add_child(c)
+	# Floor carpets — placed dynamically under each display case in _build_artifacts
 	# Candle stands at the sides
 	var candle_tex = load(LIB + "candleStandDouble_E.png")
 	for pos in [Vector2(30, 220), Vector2(vp.x - 30, 220)]:
@@ -101,24 +93,39 @@ func _build_artifacts(vp: Vector2):
 	var spacing: float = vp.x / (count + 1)
 	var y: float = vp.y * 0.50
 	var case_tex = load(LIB + "displayCaseOpen_E.png")
+	var carpet_tex = load(LIB + "floorCarpet_E.png")
 	for i in range(count):
 		var art: Dictionary = artifacts[i]
 		var x: float = spacing + i * spacing
+		# Carpet under each case
+		var carpet := Sprite2D.new()
+		carpet.texture = carpet_tex
+		carpet.scale = Vector2(0.5, 0.5)
+		carpet.position = Vector2(x, y + 30)
+		carpet.z_index = -10
+		add_child(carpet)
 		# Display case sprite
 		var case_spr := Sprite2D.new()
 		case_spr.texture = case_tex
 		case_spr.scale = Vector2(0.38, 0.38)
 		case_spr.position = Vector2(x, y)
 		add_child(case_spr)
-		# Artifact photo inside the case
-		var image_path: String = art.get("image_path", "")
-		if image_path != "" and ResourceLoader.exists(image_path):
+		# Item icon inside the case — parented to case_spr so it always stays on the table
+		var icon_path: String = art.get("icon_path", art.get("image_path", ""))
+		if icon_path != "" and ResourceLoader.exists(icon_path):
 			var photo := Sprite2D.new()
-			photo.texture = load(image_path)
-			photo.scale = Vector2(0.13, 0.13)
-			photo.position = Vector2(x, y - 46)
+			photo.texture = load(icon_path)
+			# Scale icon to fit ~50px inside the display case regardless of source image size
+			var tex_size: Vector2 = photo.texture.get_size()
+			var max_dim: float = max(tex_size.x, tex_size.y)
+			var target_px: float = 50.0
+			var world_scale: float = target_px / max_dim
+			# Also cancel the parent case_spr scale (0.38) so we work in world pixels
+			photo.scale = Vector2(world_scale / 0.38, world_scale / 0.38)
+			# Local offset: sit in the top opening of the isometric case
+			photo.position = Vector2(0, -20)
 			photo.z_index = 2
-			add_child(photo)
+			case_spr.add_child(photo)
 		# Artifact name label (always visible below case)
 		var name_lbl := Label.new()
 		name_lbl.text = art.get("name", "?")
@@ -151,7 +158,7 @@ func _build_artifacts(vp: Vector2):
 
 func _process(_delta):
 	# While popup is open, skip proximity checks
-	if _info_panel and _info_panel.visible:
+	if _artifact_ui and _artifact_ui.get_node_or_null("CanvasLayer/Panel") and _artifact_ui.get_node("CanvasLayer/Panel").visible:
 		return
 	var player = Global.player
 	if not player or _cases.is_empty():
@@ -175,79 +182,29 @@ func _process(_delta):
 			_hint_label.visible = false
 
 func _unhandled_input(event: InputEvent):
-	if _info_panel and _info_panel.visible:
-		if event.is_action_pressed("ui_cancel"):
-			_close_popup()
-			get_viewport().set_input_as_handled()
+	if _artifact_ui and _artifact_ui.get_node_or_null("CanvasLayer/Panel") and _artifact_ui.get_node("CanvasLayer/Panel").visible:
 		return
 	if event.is_action_pressed("ui_interact") and _nearby_idx >= 0:
 		_open_popup(_cases[_nearby_idx].art)
 		get_viewport().set_input_as_handled()
 
 func _open_popup(art: Dictionary):
-	_info_title.text = art.get("name", "")
-	_info_body.text = (
-		"Essence:   " + art.get("essence", "-") + "\n" +
-		"Dating:    " + art.get("dating", "-") + "\n" +
-		"Condition: " + art.get("condition", "-") + "\n" +
-		"Materials: " + art.get("materials", "-") + "\n\n" +
-		'"' + art.get("legend", "") + '"'
-	)
-	var image_path: String = art.get("image_path", "")
-	if image_path != "" and ResourceLoader.exists(image_path):
-		_info_image.texture = load(image_path)
-	else:
-		_info_image.texture = null
-	_info_panel.visible = true
+	if _artifact_ui:
+		_artifact_ui.show_artifact(art)
 	if Global.player:
 		Global.player.can_move = false
 
 func _close_popup():
-	_info_panel.visible = false
+	if _artifact_ui:
+		_artifact_ui.get_node("CanvasLayer/Panel").visible = false
 	if Global.player:
 		Global.player.can_move = true
 
-func _build_info_popup():
-	var cl := CanvasLayer.new()
-	cl.layer = 10
-	add_child(cl)
-	_info_panel = Panel.new()
-	_info_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_info_panel.size = Vector2(560, 420)
-	_info_panel.position = Vector2(-280, -210)
-	_info_panel.visible = false
-	cl.add_child(_info_panel)
-	var vbox := VBoxContainer.new()
-	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	vbox.offset_left = 16
-	vbox.offset_top = 12
-	vbox.offset_right = -16
-	vbox.offset_bottom = -12
-	vbox.add_theme_constant_override("separation", 14)
-	_info_panel.add_child(vbox)
-	_info_title = Label.new()
-	_info_title.add_theme_font_size_override("font_size", 22)
-	_info_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(_info_title)
-	var hbox := HBoxContainer.new()
-	hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	hbox.add_theme_constant_override("separation", 12)
-	vbox.add_child(hbox)
-	_info_image = TextureRect.new()
-	_info_image.custom_minimum_size = Vector2(160, 200)
-	_info_image.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-	_info_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	hbox.add_child(_info_image)
-	_info_body = Label.new()
-	_info_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_info_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_info_body.add_theme_font_size_override("font_size", 14)
-	hbox.add_child(_info_body)
-	var close_btn := Button.new()
-	close_btn.text = "Close  [Esc]"
-	close_btn.add_theme_font_size_override("font_size", 18)
-	close_btn.pressed.connect(_close_popup)
-	vbox.add_child(close_btn)
+func _build_artifact_ui():
+	var scene = load(ARTIFACT_INFO_UI_SCENE)
+	_artifact_ui = scene.instantiate()
+	add_child(_artifact_ui)
+	_artifact_ui.info_closed.connect(_close_popup)
 
 func _build_ui(vp: Vector2):
 	var cl := CanvasLayer.new()

@@ -18,9 +18,10 @@ var quest_manager : Node = null
 
 func _ready():
 	# Init (quest_manager no longer used — NPCs are dialog-only in current build)
-	dialog_manager.npc = self
-	if dialog_resource:
-		dialog_resource.load_from_json("res://Resources/Dialog/dialog_data.json")
+	if dialog_manager:
+		dialog_manager.npc = self
+	if not dialog_resource:
+		dialog_resource = Dialog.new()
 	dialog_resource.load_from_json("res://Resources/Dialog/dialog_data.json")
 	print("NPC Ready: Quests loaded", quests.size())
 
