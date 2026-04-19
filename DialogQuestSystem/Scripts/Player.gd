@@ -61,7 +61,7 @@ func _input(event):
 	# Interact with artifact items or museum entrance
 	if can_move:
 		if event.is_action_pressed("ui_interact"):
-			var target = ray_cast_2d.get_collider()
+			var target = _get_nearby_interactable()
 			if target != null:
 				if target.is_in_group("Item"):
 					var item_id: String = target.item_id
@@ -74,6 +74,20 @@ func _input(event):
 					# NPC dialog kept for future use
 					can_move = false
 					target.start_dialog()
+
+# Check all 4 directions so E always works regardless of facing direction
+func _get_nearby_interactable():
+	var original = ray_cast_2d.target_position
+	var directions = [original.normalized(), Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2.DOWN]
+	for dir in directions:
+		ray_cast_2d.target_position = dir * 50
+		ray_cast_2d.force_raycast_update()
+		var hit = ray_cast_2d.get_collider()
+		if hit != null and (hit.is_in_group("Item") or hit.is_in_group("NPC")):
+			ray_cast_2d.target_position = original
+			return hit
+	ray_cast_2d.target_position = original
+	return null
 
 # Update artifact count display on HUD
 func _on_artifact_count_changed(count: int):

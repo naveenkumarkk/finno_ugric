@@ -236,5 +236,30 @@ func _build_ui(vp: Vector2):
 	exit_btn.offset_top = -55
 	exit_btn.offset_right = -16
 	exit_btn.offset_bottom = -14
-	exit_btn.pressed.connect(func(): get_tree().quit())
+	exit_btn.pressed.connect(_on_exit_pressed)
 	cl.add_child(exit_btn)
+
+func _on_exit_pressed():
+	if OS.get_name() == "Web":
+		# On web, quit() does nothing — show a thank-you overlay instead
+		var cl2 := CanvasLayer.new()
+		cl2.layer = 10
+		add_child(cl2)
+		var overlay := ColorRect.new()
+		overlay.color = Color(0, 0, 0, 0.85)
+		overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+		cl2.add_child(overlay)
+		var lbl := Label.new()
+		lbl.text = "Thank you for playing!\n\nFinno-Ugric Heritage Expedition"
+		lbl.add_theme_font_size_override("font_size", 30)
+		lbl.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5))
+		lbl.set_anchors_preset(Control.PRESET_CENTER)
+		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lbl.offset_left = -400
+		lbl.offset_right = 400
+		lbl.offset_top = -100
+		lbl.offset_bottom = 100
+		cl2.add_child(lbl)
+	else:
+		get_tree().quit()
