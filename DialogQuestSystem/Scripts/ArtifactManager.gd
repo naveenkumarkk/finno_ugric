@@ -65,6 +65,7 @@ func _load_data():
 	if file == null:
 		push_error("ArtifactManager: Cannot open artifact_data.json")
 		return
+
 	var json_text = file.get_as_text()
 	file.close()
 
@@ -106,6 +107,7 @@ func _spawn_artifacts():
 	for artifact in all_artifact_data:
 		var art_id: String = artifact.get("id", "")
 		var art_name: String = artifact.get("name", art_id)
+
 		if art_id == "":
 			continue
 
@@ -114,10 +116,11 @@ func _spawn_artifacts():
 		item.position = artifact_positions.get(art_id, Vector2(200, 200))
 		main.add_child(item)
 
-		# Use icon_path from JSON (falls back to icon1 if missing)
+		# Use icon_path from JSON, falls back to icon1 if missing
 		var icon_path: String = artifact.get("icon_path", "res://Assets/Icons/icon1.png")
 		if not ResourceLoader.exists(icon_path):
 			icon_path = "res://Assets/Icons/icon1.png"
+
 		var icon_tex = load(icon_path)
 		var icon_scale: Vector2 = artifact_scales.get(art_id, Vector2(0.08, 0.08))
 		item.setup(icon_tex, icon_scale)
@@ -134,7 +137,7 @@ func _spawn_artifacts():
 		name_label.visible = false
 		item.add_child(name_label)
 
-		# "Press E" hint below the sprite — hidden until player is near
+		# "[E]" hint below the sprite — hidden until player is near
 		var hint_label = Label.new()
 		hint_label.name = "HintLabel"
 		hint_label.text = "[E]"
@@ -155,7 +158,7 @@ func _spawn_artifacts():
 
 	var museum_label = Label.new()
 	museum_label.name = "NameLabel"
-	museum_label.text = "MUSEUM\n(need 5/5)"
+	museum_label.text = "MUUSEUM\n(vaja 5/5)"
 	museum_label.add_theme_font_size_override("font_size", 8)
 	museum_label.add_theme_color_override("font_color", Color(0.4, 0.9, 1.0))
 	museum_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -178,52 +181,66 @@ func _spawn_artifacts():
 func _show_initial_popup():
 	if popup_ui == null:
 		return
+
 	if Global.player:
 		Global.player.can_move = false
+
 	popup_ui.show_popup(
-		"Welcome, Aleksei Peterson\n\nYou are an ethnographer exploring the Mari region.\nYour mission is to collect 5 cultural artifacts before taking them to the museum.\n\nMove with the arrow keys. Press E near an object to collect it.\n\nGood Luck!",
-		"Start Expedition"
+		"Tere tulemast, Aleksei Peterson!\n\nOled etnograaf, kes uurib Mari piirkonda.\nSinu ülesanne on koguda 5 kultuurilist eset ja viia need muuseumisse.\n\nLiigu nooleklahvidega. Eseme kogumiseks vajuta selle lähedal klahvi E.\n\nEdu!",
+		"Alusta ekspeditsiooni"
 	)
 
 func get_artifact(artifact_id: String) -> Dictionary:
 	for art in all_artifact_data:
 		if art.get("id", "") == artifact_id:
 			return art
+
 	return {}
 
 # Called by Player when pressing E on an artifact item
 func collect_artifact(artifact_id: String):
 	if phase != Phase.EXPLORING:
 		return
+
 	current_artifact = get_artifact(artifact_id)
+
 	if current_artifact.is_empty():
 		push_warning("ArtifactManager: Artifact not found: " + artifact_id)
 		return
+
 	if Global.player:
 		Global.player.can_move = false
+
 	phase = Phase.ARTIFACT_INFO
 	AudioManager.play_item_collected()
 	artifact_info_ui.show_artifact(current_artifact)
 
-# Called by Player when pressing E on the museum entrance (after all collected)
+# Called by Player when pressing E on the museum entrance after all collected
 func enter_museum():
 	if phase != Phase.EXPLORING:
 		return
+
 	if artifacts_collected < TOTAL_ARTIFACTS:
 		popup_ui.show_popup(
-			"You have collected %d/%d artifacts.\nCollect all artifacts before entering the museum!" % [artifacts_collected, TOTAL_ARTIFACTS],
+			"Oled kogunud %d/%d eset.\nEnne muuseumisse sisenemist kogu kõik esemed!" % [artifacts_collected, TOTAL_ARTIFACTS],
 			"OK"
 		)
+
 		if Global.player:
 			Global.player.can_move = false
+
 		return
+
 	AudioManager.play_reach_museum()
+
 	if Global.player:
 		Global.player.can_move = false
+
 	phase = Phase.MUSEUM_INTRO
+
 	popup_ui.show_popup(
-		"You have arrived at the museum.\n\nBefore opening the exhibition, you must prove your knowledge of the collected artifacts.\nAnswer the final questions correctly to complete your mission.",
-		"Start Final Quiz"
+		"Oled jõudnud muuseumisse.\n\nEnne näituse avamist pead tõestama oma teadmisi kogutud esemete kohta.\nVasta lõppküsimustele õigesti, et oma missioon lõpule viia.",
+		"Alusta lõpuviktoriini"
 	)
 
 # --- Signal handlers ---
@@ -231,6 +248,7 @@ func enter_museum():
 func _on_info_closed():
 	if phase != Phase.ARTIFACT_INFO:
 		return
+
 	phase = Phase.CHECKPOINT_QUIZ
 	var quiz = current_artifact.get("quiz", {})
 	AudioManager.play_quiz_opens()
@@ -242,38 +260,43 @@ func _on_quiz_completed():
 			artifacts_collected += 1
 			artifact_count_changed.emit(artifacts_collected)
 			phase = Phase.PROGRESS_POPUP
+
 			if artifacts_collected >= TOTAL_ARTIFACTS:
 				popup_ui.show_popup(
-					"All artifacts were collected. Great job!!\nThe museum awaits your findings!!",
-					"Go to Museum"
+					"Kõik esemed on kogutud. Väga hea töö!\nMuuseum ootab sinu leide!",
+					"Mine muuseumisse"
 				)
 			else:
 				popup_ui.show_popup(
-					"You have collected %d/%d artifacts.\nContinue your research" % [artifacts_collected, TOTAL_ARTIFACTS],
-					"Continue"
+					"Oled kogunud %d/%d eset.\nJätka uurimist." % [artifacts_collected, TOTAL_ARTIFACTS],
+					"Jätka"
 				)
+
 		Phase.FINAL_QUIZ:
 			final_quiz_index += 1
+
 			if final_quiz_index < final_quiz_data.size():
 				AudioManager.play_quiz_opens()
 				quiz_ui.show_quiz(
 					final_quiz_data[final_quiz_index],
-					"Final Quiz (%d/%d)\nAnswer the final questions correctly to complete your mission." % [final_quiz_index + 1, final_quiz_data.size()]
+					"Lõpuviktoriin (%d/%d)\nVasta lõppküsimustele õigesti, et oma missioon lõpule viia." % [final_quiz_index + 1, final_quiz_data.size()]
 				)
 			else:
 				phase = Phase.GAME_OVER
 				AudioManager.play_mission_completed()
 				popup_ui.show_popup(
-					"Congratulations!\n\nAll artifacts were collected, and the final quiz was completed.\nYou have successfully completed your ethnographic mission.",
-					"Enter Museum"
+					"Palju õnne!\n\nKõik esemed on kogutud ja lõpuviktoriin on läbitud.\nOled oma etnograafilise missiooni edukalt lõpule viinud.",
+					"Sisene muuseumisse"
 				)
 
 func _on_popup_closed():
 	match phase:
 		Phase.PROGRESS_POPUP:
 			phase = Phase.EXPLORING
+
 			if Global.player:
 				Global.player.can_move = true
+
 		Phase.MUSEUM_INTRO:
 			phase = Phase.FINAL_QUIZ
 			final_quiz_index = 0
@@ -281,24 +304,30 @@ func _on_popup_closed():
 			AudioManager.play_quiz_opens()
 			quiz_ui.show_quiz(
 				final_quiz_data[0],
-				"Final Quiz (1/%d)\nAnswer the final questions correctly to complete your mission." % final_quiz_data.size()
+				"Lõpuviktoriin (1/%d)\nVasta lõppküsimustele õigesti, et oma missioon lõpule viia." % final_quiz_data.size()
 			)
+
 		Phase.GAME_OVER:
 			game_finished.emit()
+
 			# Clean up floating UI nodes before switching scenes
 			if artifact_info_ui:
 				artifact_info_ui.queue_free()
 				artifact_info_ui = null
+
 			if quiz_ui:
 				quiz_ui.queue_free()
 				quiz_ui = null
+
 			if popup_ui:
 				popup_ui.queue_free()
 				popup_ui = null
+
 			# Transition to the in-game museum exhibition
 			Global.museum_artifacts = all_artifact_data.duplicate(true)
 			get_tree().change_scene_to_file("res://Scenes/Museum.tscn")
-		# Initial popup (EXPLORING phase) — just resume movement
+
+		# Initial popup, EXPLORING phase — just resume movement
 		Phase.EXPLORING:
 			if Global.player:
 				Global.player.can_move = true

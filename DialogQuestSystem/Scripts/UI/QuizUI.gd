@@ -15,9 +15,10 @@ var answered_correctly: bool = false
 
 func _ready():
 	panel.visible = false
+	continue_button.text = "Jätka"
 	continue_button.pressed.connect(_on_continue_button_pressed)
 
-func show_quiz(quiz_data: Dictionary, header: String = "You must prove what you learned.\nAnswer correctly to proceed"):
+func show_quiz(quiz_data: Dictionary, header: String = "Tõesta, mida oled õppinud.\nEdasiliikumiseks vasta õigesti."):
 	correct_index = quiz_data.get("correct", -1)
 	answered_correctly = false
 	header_label.text = header
@@ -25,11 +26,11 @@ func show_quiz(quiz_data: Dictionary, header: String = "You must prove what you 
 	feedback_label.text = ""
 	continue_button.visible = false
 
-	# Clear old option buttons
+	# Eemalda vanad vastusevariandid
 	for child in options_container.get_children():
 		child.queue_free()
 
-	# Add new option buttons
+	# Lisa uued vastusevariandid
 	var options: Array = quiz_data.get("options", [])
 	for i in options.size():
 		var btn = Button.new()
@@ -49,28 +50,31 @@ func _on_option_pressed(index: int):
 		answered_correctly = true
 		AudioManager.play_correct()
 		feedback_label.add_theme_color_override("font_color", Color(0.2, 1.0, 0.3))
-		feedback_label.text = "Correct!"
+		feedback_label.text = "Õige!"
 		for child in options_container.get_children():
 			child.disabled = true
 		continue_button.visible = true
 	else:
 		AudioManager.play_wrong()
 		feedback_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
-		feedback_label.text = "Incorrect. Try again!"
+		feedback_label.text = "Vale vastus. Proovi uuesti!"
 
 func _unhandled_input(event: InputEvent):
 	if not panel.visible:
 		return
-	# 1-4 keys select answer options
+
+	# Klahvid 1–4 valivad vastusevariandi
 	var key_map = {
 		KEY_1: 0, KEY_2: 1, KEY_3: 2, KEY_4: 3
 	}
+
 	if event is InputEventKey and event.pressed and not event.echo:
 		if key_map.has(event.keycode):
 			_on_option_pressed(key_map[event.keycode])
 			get_viewport().set_input_as_handled()
 			return
-	# Enter/Space confirms when Continue is visible
+
+	# Enter/tühik kinnitab, kui nupp "Jätka" on nähtav
 	if event.is_action_pressed("ui_accept") and continue_button.visible:
 		_on_continue_button_pressed()
 		get_viewport().set_input_as_handled()
