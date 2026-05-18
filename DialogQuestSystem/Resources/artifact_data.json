@@ -93,7 +93,7 @@
       "correct": 2
     },
     {
-      "question": "Mis aastast on rüü dateeritud?",
+      "question": "Mis aastasse omanik rüü dateeris?",
       "options": ["A. 1970", "B. 1971", "C. 1977", "D. 1777"],
       "correct": 0
     },
@@ -103,7 +103,7 @@
       "correct": 3
     },
     {
-      "question": "Mis ajast on kott dateeritud?",
+      "question": "Mis aastase omanik koti dateeris?",
       "options": ["A. Enne 1938. aastat", "B. Enne 1935. aastat", "C. Pärast 1935. aastat", "D. Pärast 1938. aastat"],
       "correct": 1
     },
